@@ -9,7 +9,6 @@ Enter your game's Steam App ID and up to three games you compete with. SteamLens
 - **Keyword signals (free, no key):** which positioning words (combat, co-op, roguelike, myth...) appear in each short description.
 - **AI positioning review (optional, paid):** 2-3 hypotheses comparing your store text with a competitor's. Each one must quote the public text word for word or it is hidden.
 
-![SteamLens screenshot](docs/screenshot.png)
 
 ## Quick start on Windows (PowerShell)
 
