@@ -26,7 +26,7 @@ Thanks for improving SteamLens!
 
 1. Open an issue describing the problem or proposed feature before large changes.
 2. Fork the repository and create a focused branch.
-3. Add or update tests; run `pytest -q`.
+3. Add or update tests; run `python -m pytest -q`.
 4. Explain data provenance and API terms for any new integration.
 5. Submit a pull request explaining behavior, screenshots and limitations.
 
