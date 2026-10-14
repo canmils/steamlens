@@ -10,7 +10,7 @@ from openai import OpenAIError
 
 st.set_page_config(page_title="SteamLens", page_icon="🎮", layout="wide")
 st.title("🎮 SteamLens")
-st.caption("Open-source Steam store page audit · v0.5")
+st.caption("Open-source Steam store page audit · v0.5.1 beta")
 st.info("Compare your Steam store page with up to 3 games you choose. The checklist is free and needs no API key. "
         "The optional AI review needs your own OpenAI API key, may incur charges and sends public game text to OpenAI.")
 api_key = os.getenv("OPENAI_API_KEY", "").strip()
@@ -121,11 +121,13 @@ if submitted:
                     st.markdown("**" + insight["title"] + "**")
                     st.write(insight["interpretation"])
                     st.write("**Suggested experiment:** " + insight["action"])
-                    st.caption("Verbatim store evidence (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
+                    st.caption("Matched store-text evidence (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
             if ai_result.get("dropped_insights"):
-                st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote not found verbatim in store text.")
+                st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote did not match the source text.")
             st.caption(ai_result["disclaimer"])
         st.caption(result["disclaimer"])
+        if ai_result is not None:
+            result["ai_review"] = ai_result
         st.download_button("Download JSON audit", json.dumps(result, indent=2, ensure_ascii=False),
                            file_name=f"steamlens-{game['app_id']}.json", mime="application/json")
     except (ValueError, requests.exceptions.RequestException) as exc:

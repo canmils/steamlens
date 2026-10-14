@@ -1,0 +1,30 @@
+name: Improvement suggestion
+description: Propose a change to an existing workflow
+title: "[Idea] "
+body:
+  - type: markdown
+    attributes:
+      value: "SteamLens is feature-frozen during beta feedback collection. Ideas are welcome but may be deferred."
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the developer's task rather than only a feature.
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What happens with SteamLens today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workarounds or alternatives
