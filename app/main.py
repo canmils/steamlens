@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 import streamlit as st
 from app.core import app_id, fetch_game, audit
@@ -10,17 +11,19 @@ st.set_page_config(page_title="SteamLens", page_icon="🎮", layout="wide")
 st.title("🎮 SteamLens")
 st.caption("Open-source Steam marketing audit · v0.4 · OpenAI API key required")
 st.info("AI positioning review of public Steam text. OpenAI API usage may incur charges; findings require human verification.")
-st.caption("Your key is used for this analysis request and is not saved by SteamLens. Public game text is sent to OpenAI.")
+st.caption("Set OPENAI_API_KEY in the server environment before starting SteamLens. Public game text is sent to OpenAI.")
+api_key = os.getenv("OPENAI_API_KEY", "").strip()
+if not api_key:
+    st.warning("OPENAI_API_KEY is not configured in the server environment. Set it and restart Streamlit.")
 
 with st.form("audit"):
-    api_key = st.text_input("OpenAI API key (required)", type="password", help="Create a key in the OpenAI API platform. Never commit keys to GitHub.")
     game_url = st.text_input("Steam game URL or App ID", placeholder="https://store.steampowered.com/app/1145360/")
     comps = st.text_input("Up to 3 comparison URLs or App IDs (comma-separated, optional)")
     submitted = st.form_submit_button("Analyze game", type="primary")
 
 if submitted:
     if not api_key.strip():
-        st.error("Enter an OpenAI API key to analyze a game.")
+        st.error("OPENAI_API_KEY is missing. Set it in the PowerShell session that starts Streamlit, then restart Streamlit.")
         st.stop()
     try:
         with st.spinner("Fetching public game information..."):
@@ -95,7 +98,7 @@ if submitted:
                             st.write("**" + label + ":** " + ", ".join(phrases))
                     else:
                         st.write("No configured keyword signals detected.")
-            st.write("**Signals in Hades and at least one competitor:** " + (", ".join(report["shared"]) or "None detected"))
+            st.write("**Signals in the target and at least one competitor:** " + (", ".join(report["shared"]) or "None detected"))
             st.write("**Signals detected only in the target description:** " + (", ".join(report["main_only"]) or "None detected"))
             st.write("**Signals detected only in competitor descriptions:** " + (", ".join(report["peer_only"]) or "None detected"))
             st.info("Research prompt: Which detected positioning differences are meaningful to your audience? Verify against actual gameplay and visuals.")
@@ -105,7 +108,11 @@ if submitted:
             try:
                 ai_result = ai_audit(game, others, api_key)
             except (OpenAIError, ValueError) as exc:
-                st.error("AI audit could not be completed. Check your API key, API billing/access, network, and try again. No AI report was generated.")
+                st.error("AI audit could not be completed (" + type(exc).__name__ + "). No AI report was generated.")
+                if isinstance(exc, ValueError):
+                    st.caption("Reason: " + str(exc))
+                else:
+                    st.caption("OpenAI request failed. Check API billing, model access, and connectivity.")
                 ai_result = None
         if ai_result:
             st.caption("Model: " + ai_result["model"] + " · AI-generated hypotheses, not proven results")
