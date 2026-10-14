@@ -7,7 +7,7 @@ Enter your game's Steam App ID and up to three games you compete with. SteamLens
 - **Store page checklist (free, no key):** short description length, screenshots, trailer, languages, controller support and user reviews, with a suggested action for each item that needs attention.
 - **Side-by-side numbers (free, no key):** description length, screenshots, trailers, languages, platforms, price, reviews and release date for your game and the games you picked.
 - **Keyword signals (free, no key):** which positioning words (combat, co-op, roguelike, myth...) appear in each short description.
-- **AI positioning review (optional, paid):** 2-3 hypotheses comparing your store text with a competitor's. Each one must quote the public text word for word or it is hidden.
+- **AI positioning review (optional, paid):** 2-3 hypotheses comparing your store text with a competitor's. Each one must include a source-text quotation checked against the fetched listing; punctuation and spacing may be normalized. The interpretation itself is not fact-checked.
 
 
 ## Quick start on Windows (PowerShell)
@@ -34,7 +34,11 @@ python -m streamlit run app/main.py
 
 Never put your key in GitHub, screenshots, issues or committed files.
 
-To run tests: `python -m pytest -q`.
+To run tests: `python -m pytest -q`. GitHub Actions also runs tests on pull requests and pushes to `main`.
+
+## Public beta status
+
+SteamLens v0.5.1 is an experimental local application, not a hosted service. It has not been validated to improve conversion, wishlists, or sales. The first goal is to learn whether indie developers find the checklist, comparison, and optional AI hypotheses useful. See [beta release checklist](docs/BETA_RELEASE.md) before tagging a release.
 
 ## Feedback wanted
 
@@ -65,7 +69,7 @@ To use the AI review, set `OPENAI_API_KEY` in the container runtime environment 
 - SteamLens uses the key only to call OpenAI for the submitted audit. It does **not intentionally persist the key** in files, exported JSON, or logs. The key remains in the server process environment while SteamLens is running. Use this local app only on a machine/network you trust; do not expose the development server publicly.
 - SteamLens sends the target and competitor **game names, App IDs, public short descriptions, excerpts of the About text, and genres** to OpenAI. It does not send screenshot image bytes.
 - API usage may incur charges on each analysis. Check provider billing and data handling policies before use.
-- AI output is fallible. Each displayed AI finding must contain a verbatim quote from the supplied public text, but **a correct quote does not prove the interpretation**.
+- AI output is fallible. Each displayed AI finding must contain a quotation matched against the supplied public text after limited normalization, but **a correct quote does not prove the interpretation**.
 - No sales, wishlists, conversion predictions, player reaction measurements, Steamworks access, user tags or image understanding.
 - A checklist item marked as present means the element exists, not that it works well.
 - Competitors are selected by the user; the app does not establish market similarity.
