@@ -28,7 +28,9 @@ Open http://localhost:8501 . Try App ID `1145360` (Hades) with comparison games 
 The AI review uses the OpenAI API, which is a paid service (a ChatGPT subscription does not include API credits). Create a key at https://platform.openai.com/api-keys and set it in the same PowerShell window **before** starting the app:
 
 ```powershell
-$env:OPENAI_API_KEY = Read-Host -Prompt "Enter API key" -MaskInput
+$secret = Read-Host "OpenAI API key" -AsSecureString
+$env:OPENAI_API_KEY = [System.Net.NetworkCredential]::new("", $secret).Password
+Remove-Variable secret
 python -m streamlit run app/main.py
 ```
 
@@ -79,3 +81,25 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bugs and PRs welcome. Do not share API k
 ## License
 
 MIT. Third-party data, images, and trademarks remain owned by their respective owners.
+
+## macOS/Linux quick start
+
+```sh
+git clone https://github.com/canmils/steamlens.git
+cd steamlens
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m streamlit run app/main.py --server.address 127.0.0.1
+```
+
+On Windows, activation is optional: use `.\.venv\Scripts\python.exe` for each Python command. The secure key-entry example works in Windows PowerShell 5.1 and PowerShell 7. The no-key checklist works immediately. Preserve any results you save separately before updating.
+
+## Update, troubleshoot and contribute
+
+Stop the app with Ctrl+C. Back up your own configuration, inputs and outputs first. Run `git status`; commit tracked edits on a branch before pulling. Then `git pull --ff-only` and reinstall dependencies with the same environment/package manager used above. Restart with the documented run command. Resolve divergent history instead of forcing away changes.
+
+Missing command: install the prerequisite and reopen the terminal. Missing module: use the same interpreter/package manager for install and run. Missing file: check the repository root and sample setup. Port busy: stop the earlier server. Provider failure: check key, credit, model access and connectivity; repeated calls can incur another charge.
+
+Report bugs or suggest changes at https://github.com/canmils/steamlens/issues. Include OS/runtime, commit, exact command, safe sample, sanitized error and expected/actual result. See [CONTRIBUTING.md](CONTRIBUTING.md) for fork → branch → test → pull request. Never share keys or private company data.
+
+See [ONBOARDING_CHECKS.md](ONBOARDING_CHECKS.md) for checks actually run and limits.
