@@ -4,6 +4,36 @@ from openai import OpenAI
 
 MODEL = "gpt-4.1-mini"
 
+REPORT_SCHEMA = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "steamlens_positioning",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "insights": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "interpretation": {"type": "string"},
+                            "action": {"type": "string"},
+                            "evidence_quote": {"type": "string"},
+                            "evidence_app_id": {"type": "string"}
+                        },
+                        "required": ["title", "interpretation", "action", "evidence_quote", "evidence_app_id"],
+                        "additionalProperties": False
+                    }
+                }
+            },
+            "required": ["insights"],
+            "additionalProperties": False
+        }
+    }
+}
+
 def evidence_games(game, competitors):
     return [{
         "name": g.get("name", "Unknown"),
@@ -53,10 +83,15 @@ def ai_audit(game, competitors, api_key, client=None):
         model=MODEL,
         messages=[{"role": "system", "content": instruction},
                   {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
-        response_format={"type": "json_object"},
+        response_format=REPORT_SCHEMA,
         temperature=0.2,
     )
-    raw = response.choices[0].message.content
+    choice = response.choices[0]
+    if choice.finish_reason != "stop":
+        raise ValueError("AI response was incomplete; try again.")
+    if choice.message.refusal:
+        raise ValueError("AI declined to provide an audit.")
+    raw = choice.message.content
     try:
         report = json.loads(raw)
     except (ValueError, TypeError) as exc:
