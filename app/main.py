@@ -2,6 +2,7 @@ import json
 import requests
 import streamlit as st
 from app.core import app_id, fetch_game, audit
+from app.positioning import positioning
 
 st.set_page_config(page_title="SteamLens", page_icon="🎮", layout="wide")
 st.title("🎮 SteamLens")
@@ -76,6 +77,22 @@ if submitted:
                     st.caption("Shared genres: " + (", ".join(item["shared_genres"]) or "None returned"))
                     if item["source_url"]:
                         st.markdown(f"[View Steam listing]({item['source_url']})")
+        if others:
+            st.subheader("Positioning signals (experimental)")
+            st.caption("Exact phrases found in public short descriptions. These are not AI judgments or quality scores.")
+            report = positioning(game, others)
+            for entry in report["games"]:
+                with st.expander(entry["name"] + " — positioning evidence", expanded=True):
+                    if entry["signals"]:
+                        for label, phrases in entry["signals"].items():
+                            st.write("**" + label + ":** " + ", ".join(phrases))
+                    else:
+                        st.write("No configured keyword signals detected.")
+            st.write("**Signals in Hades and at least one competitor:** " + (", ".join(report["shared"]) or "None detected"))
+            st.write("**Signals detected only in the target description:** " + (", ".join(report["main_only"]) or "None detected"))
+            st.write("**Signals detected only in competitor descriptions:** " + (", ".join(report["peer_only"]) or "None detected"))
+            st.info("Research prompt: Which detected positioning differences are meaningful to your audience? Verify against actual gameplay and visuals.")
+            st.caption(report["method"])
         st.caption(result["disclaimer"])
         st.download_button("Download JSON audit", json.dumps(result, indent=2, ensure_ascii=False),
                            file_name=f"steamlens-{game['app_id']}.json", mime="application/json")
