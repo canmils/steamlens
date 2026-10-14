@@ -1,0 +1,61 @@
+name: Beta user feedback
+description: Tell us whether SteamLens was useful for a real Steam game
+title: "[Feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: "We want candid feedback, including when the tool adds no value. Do not share private analytics or credentials."
+  - type: input
+    id: appid
+    attributes:
+      label: Steam App ID (optional)
+      description: Public listing only
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your role
+      options:
+        - Indie developer
+        - Publisher / marketer
+        - Player / researcher
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: usefulness
+    attributes:
+      label: Did SteamLens tell you something useful that you did not already know?
+      options:
+        - Yes, specific actionable insight
+        - Somewhat, but nothing actionable
+        - No
+    validations:
+      required: true
+  - type: textarea
+    id: learned
+    attributes:
+      label: What did you learn, if anything?
+    validations:
+      required: true
+  - type: textarea
+    id: action
+    attributes:
+      label: What would you change or test based on the result?
+      description: "It's fine to say nothing."
+    validations:
+      required: true
+  - type: dropdown
+    id: reuse
+    attributes:
+      label: Would you use SteamLens again?
+      options:
+        - Yes
+        - Maybe
+        - No
+    validations:
+      required: true
+  - type: textarea
+    id: improvements
+    attributes:
+      label: What was confusing, missing, or incorrect?
