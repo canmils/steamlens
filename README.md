@@ -1,16 +1,20 @@
 # SteamLens 🎮
 
-**Free, open-source Steam store page checklist and side-by-side comparison. Optional AI review with your own OpenAI API key.**
+**Experimental, free, open-source Steam store-page checklist and competitor comparison.** Optional AI positioning review using **your own paid OpenAI API key**.
 
-Enter your game's Steam App ID and up to three games you compete with. SteamLens reads public Steam data and shows:
+SteamLens runs **locally on your computer**. There is **no hosted website or account**. It does not edit your Steam page, estimate wishlists/sales, or prove conversion improvements.
 
-- **Store page checklist (free, no key):** short description length, screenshots, trailer, languages, controller support and user reviews, with a suggested action for each item that needs attention.
-- **Side-by-side numbers (free, no key):** description length, screenshots, trailers, languages, platforms, price, reviews and release date for your game and the games you picked.
-- **Keyword signals (free, no key):** which positioning words (combat, co-op, roguelike, myth...) appear in each short description.
-- **AI positioning review (optional, paid):** 2-3 hypotheses comparing your store text with a competitor's. Each one must include a source-text quotation checked against the fetched listing; punctuation and spacing may be normalized. The interpretation itself is not fact-checked.
+## What you can do
 
+- **Free checklist:** inspect descriptions, screenshots, trailers, languages, controller support and public review counts.
+- **Free comparison:** compare public listing details with up to three Steam games **you choose**.
+- **Free keyword signals:** see literal terms detected in short descriptions; missing terms do not imply missing gameplay.
+- **Optional AI review:** generate 2–3 *hypotheses* about differences in public store copy. Matched evidence quotes do not prove the interpretation.
+- **Export:** download the audit as JSON, including the AI review if one was generated.
 
-## Quick start on Windows (PowerShell)
+## Quick start — Windows PowerShell
+
+Install [Python 3.10+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads), then open PowerShell:
 
 ```powershell
 git clone https://github.com/canmils/steamlens.git
@@ -21,65 +25,86 @@ python -m pip install -r requirements.txt
 python -m streamlit run app/main.py
 ```
 
-Open http://localhost:8501 . Try App ID `1145360` (Hades) with comparison games `1145350, 588650, 2071280`.
+Open **http://localhost:8501** if your browser does not open automatically. Enter `1145360` (Hades); optional competitors: `1145350, 588650, 2071280`. Click **Analyze game**. You do **not** need an OpenAI key for the free features. Stop the app with **Ctrl+C**.
 
-### Optional: enable the AI review
+If PowerShell blocks activation, you can run `.\.venv\Scripts\python.exe -m pip install -r requirements.txt` and `.\.venv\Scripts\python.exe -m streamlit run app/main.py` without activating the environment.
 
-The AI review uses the OpenAI API, which is a paid service (a ChatGPT subscription does not include API credits). Create a key at https://platform.openai.com/api-keys and set it in the same PowerShell window **before** starting the app:
+## macOS / Linux
 
-```powershell
-$env:OPENAI_API_KEY = Read-Host -Prompt "Enter API key" -MaskInput
+Requires Python 3.10+ and Git:
+
+```bash
+git clone https://github.com/canmils/steamlens.git
+cd steamlens
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 python -m streamlit run app/main.py
 ```
 
-Never put your key in GitHub, screenshots, issues or committed files.
+Open **http://localhost:8501**. On some Linux distributions you may need to install the Python venv package first.
 
-To run tests: `python -m pytest -q`. GitHub Actions also runs tests on pull requests and pushes to `main`.
+## Optional AI review (paid API)
 
-## Public beta status
+A ChatGPT subscription **does not** include OpenAI API credits. Get an API key from https://platform.openai.com/api-keys and check API billing. The AI review requires at least one competitor and sends public game names, App IDs, genres, short descriptions and excerpts of About text to OpenAI; **no screenshots** are sent.
 
-SteamLens v0.5.1 is an experimental local application, not a hosted service. It has not been validated to improve conversion, wishlists, or sales. The first goal is to learn whether indie developers find the checklist, comparison, and optional AI hypotheses useful. See [beta release checklist](docs/BETA_RELEASE.md) before tagging a release.
+**Windows PowerShell:** stop the app, then in the same terminal:
 
-## Feedback wanted
+```powershell
+$env:OPENAI_API_KEY = Read-Host -Prompt "Enter OpenAI API key" -MaskInput
+python -m streamlit run app/main.py
+```
 
-This is an early prototype. The most useful feedback right now:
+**macOS / Linux:** set `OPENAI_API_KEY` in the terminal environment before starting Streamlit. Avoid saving the key in shell history, committed files or screenshots. Use a private terminal input method.
 
-1. **Indie developers and marketers:** which store page checks would you actually use? What is missing or wrong?
-2. Games where the data looks wrong (please include the App ID).
-3. Whether the AI review says anything you could not get by pasting your store text into a chatbot.
+API requests may incur charges. **Never post API keys in GitHub Issues, pull requests, screenshots or exported logs.** Revoke any accidentally disclosed key.
 
-Open an [issue](https://github.com/canmils/steamlens/issues) or a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md).
+## Docker alternative
 
-## Requirements
-
-- Python 3.10+ (or Docker)
-- Internet connection to Steam (and to OpenAI only if you use the AI review)
-
-## Docker
+If Docker Compose is installed:
 
 ```bash
 docker compose up --build
 ```
 
-To use the AI review, set `OPENAI_API_KEY` in the container runtime environment before launching (for example, via an untracked local environment configuration). Never embed it in the image or commit it to the repository.
+Open **http://localhost:8501**. Docker Compose binds to localhost only. The provided Compose configuration does **not** forward `OPENAI_API_KEY` by default, so this starts the **free** workflow. For AI, use the Python instructions above or configure a private, untracked container environment securely.
 
-## Privacy, cost, and limitations
+## Share feedback or ask for help
 
-- The checklist and comparison need no key and send nothing to OpenAI.
-- SteamLens uses the key only to call OpenAI for the submitted audit. It does **not intentionally persist the key** in files, exported JSON, or logs. The key remains in the server process environment while SteamLens is running. Use this local app only on a machine/network you trust; do not expose the development server publicly.
-- SteamLens sends the target and competitor **game names, App IDs, public short descriptions, excerpts of the About text, and genres** to OpenAI. It does not send screenshot image bytes.
-- API usage may incur charges on each analysis. Check provider billing and data handling policies before use.
-- AI output is fallible. Each displayed AI finding must contain a quotation matched against the supplied public text after limited normalization, but **a correct quote does not prove the interpretation**.
-- No sales, wishlists, conversion predictions, player reaction measurements, Steamworks access, user tags or image understanding.
-- A checklist item marked as present means the element exists, not that it works well.
-- Competitors are selected by the user; the app does not establish market similarity.
-- No SteamDB scraping. The public Steam `appdetails` endpoint may change or become unavailable; respect rate limits and usage terms.
-- This is a local research prototype, **not** a production-ready hosted service.
+We want feedback from indie developers, publishers and Steam marketers. **You do not need programming skills to help.**
 
-## Contributing
+| What you want to do | Where to go |
+| --- | --- |
+| Report a bug or incorrect Steam data | [Report a bug](https://github.com/canmils/steamlens/issues/new?template=bug_report.yml) |
+| Suggest an improvement | [Suggest an idea](https://github.com/canmils/steamlens/issues/new?template=feature_request.yml) |
+| Tell us whether an audit was useful | [Share beta feedback](https://github.com/canmils/steamlens/issues/new?template=beta_feedback.yml) |
+| Ask a question | [Open an issue](https://github.com/canmils/steamlens/issues/new/choose) |
+| Fix code or documentation | Read [CONTRIBUTING.md](CONTRIBUTING.md), then open a [pull request](https://github.com/canmils/steamlens/pulls) |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Bugs and PRs welcome. Do not share API keys in bug reports.
+A free GitHub account is required to post Issues or PRs. For useful feedback, tell us your **Steam App ID**, what you expected, what happened, and whether you would take action based on the result. **Please do not include private Steamworks metrics, credentials or personal data.**
+
+This beta is deliberately **feature-frozen** until we review feedback from 5–10 real users. Bugs, documentation corrections and security fixes are welcome; larger features should be discussed in an Issue first. Maintainers review contributions; submitting a PR does not guarantee merge.
+
+## Development and testing
+
+```bash
+python -m pytest -q
+python -m compileall -q app
+```
+
+GitHub Actions runs automated tests on pull requests and pushes to `main`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and [beta release gate](docs/BETA_RELEASE.md) for outstanding verification before the v0.5.1 pre-release.
+
+## Data, privacy and limitations
+
+- Public data comes from Steam's store endpoints. Availability, accuracy and usage terms can change. The default request locale is **English / US**; prices may differ in your region.
+- The free checklist and comparison **do not call OpenAI**. SteamLens fetches game information from Steam.
+- If AI is enabled, SteamLens sends the public text described above to OpenAI. It does not intentionally save API keys in files or exported JSON; the key stays in the process environment. Use on a trusted local computer and **do not expose the development server publicly**.
+- AI output is fallible. Quotes are matched after limited normalization; conclusions are **not fact-checked**.
+- Checklist thresholds are review prompts, not scientifically validated optimization targets. **“OK” means the element is present, not effective.**
+- Competitors are chosen by the user; SteamLens does not determine competitive similarity.
+- No access to private Steamworks analytics, wishlists, sales, conversion rates or player behavior. No image understanding, SteamDB scraping, or automatic Steam listing updates.
+- SteamLens is an **experimental local research tool**, not a hosted production service. Please respect Steam and OpenAI terms and rate limits.
 
 ## License
 
-MIT. Third-party data, images, and trademarks remain owned by their respective owners.
+[MIT](LICENSE). Third-party game assets, data, names and trademarks remain the property of their respective owners.
