@@ -1,0 +1,57 @@
+name: Bug report
+description: Something fails, crashes, or shows incorrect data
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting. Never paste API keys, private Steamworks data, or other secrets."
+  - type: input
+    id: appid
+    attributes:
+      label: Steam App ID
+      description: Public Steam game ID, if relevant
+      placeholder: "1145360"
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Environment
+      options:
+        - Windows / Python
+        - macOS / Python
+        - Linux / Python
+        - Docker
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Launch app\n2. Enter App ID\n3. Click Analyze game"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and sanitized error message
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SteamLens version or commit
+      placeholder: "v0.5.1 beta"
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed API keys, personal information, and private analytics from this report.
+          required: true
