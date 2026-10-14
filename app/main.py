@@ -3,18 +3,25 @@ import requests
 import streamlit as st
 from app.core import app_id, fetch_game, audit
 from app.positioning import positioning
+from app.ai_audit import ai_audit
+from openai import OpenAIError
 
 st.set_page_config(page_title="SteamLens", page_icon="🎮", layout="wide")
 st.title("🎮 SteamLens")
-st.caption("Open-source Steam marketing audit · v0.2 · no AI key required")
-st.info("Evidence-based descriptive checks, not conversion predictions or sales estimates.")
+st.caption("Open-source Steam marketing audit · v0.4 · OpenAI API key required")
+st.info("AI positioning review of public Steam text. OpenAI API usage may incur charges; findings require human verification.")
+st.caption("Your key is used for this analysis request and is not saved by SteamLens. Public game text is sent to OpenAI.")
 
 with st.form("audit"):
+    api_key = st.text_input("OpenAI API key (required)", type="password", help="Create a key in the OpenAI API platform. Never commit keys to GitHub.")
     game_url = st.text_input("Steam game URL or App ID", placeholder="https://store.steampowered.com/app/1145360/")
     comps = st.text_input("Up to 3 comparison URLs or App IDs (comma-separated, optional)")
     submitted = st.form_submit_button("Analyze game", type="primary")
 
 if submitted:
+    if not api_key.strip():
+        st.error("Enter an OpenAI API key to analyze a game.")
+        st.stop()
     try:
         with st.spinner("Fetching public game information..."):
             game = fetch_game(app_id(game_url))
@@ -93,6 +100,22 @@ if submitted:
             st.write("**Signals detected only in competitor descriptions:** " + (", ".join(report["peer_only"]) or "None detected"))
             st.info("Research prompt: Which detected positioning differences are meaningful to your audience? Verify against actual gameplay and visuals.")
             st.caption(report["method"])
+        st.subheader("AI positioning audit")
+        with st.spinner("Generating evidence-backed positioning observations..."):
+            try:
+                ai_result = ai_audit(game, others, api_key)
+            except (OpenAIError, ValueError) as exc:
+                st.error("AI audit could not be completed. Check your API key, API billing/access, network, and try again. No AI report was generated.")
+                ai_result = None
+        if ai_result:
+            st.caption("Model: " + ai_result["model"] + " · AI-generated hypotheses, not proven results")
+            for insight in ai_result["insights"]:
+                with st.container(border=True):
+                    st.markdown("**" + insight["title"] + "**")
+                    st.write(insight["interpretation"])
+                    st.write("**Suggested experiment:** " + insight["action"])
+                    st.caption("Verbatim store evidence (App " + insight["evidence_app_id"] + "): “" + insight["evidence_quote"] + "”")
+            st.caption(ai_result["disclaimer"])
         st.caption(result["disclaimer"])
         st.download_button("Download JSON audit", json.dumps(result, indent=2, ensure_ascii=False),
                            file_name=f"steamlens-{game['app_id']}.json", mime="application/json")
