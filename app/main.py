@@ -126,6 +126,8 @@ if submitted:
                 st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote not found verbatim in store text.")
             st.caption(ai_result["disclaimer"])
         st.caption(result["disclaimer"])
+        if ai_result is not None:
+            result["ai_review"] = ai_result
         st.download_button("Download JSON audit", json.dumps(result, indent=2, ensure_ascii=False),
                            file_name=f"steamlens-{game['app_id']}.json", mime="application/json")
     except (ValueError, requests.exceptions.RequestException) as exc:
