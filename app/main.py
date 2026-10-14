@@ -121,7 +121,7 @@ if submitted:
                     st.markdown("**" + insight["title"] + "**")
                     st.write(insight["interpretation"])
                     st.write("**Suggested experiment:** " + insight["action"])
-                    st.caption("Verbatim store evidence (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
+                    st.caption("Matched store-text evidence (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
             if ai_result.get("dropped_insights"):
                 st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote not found verbatim in store text.")
             st.caption(ai_result["disclaimer"])
