@@ -1,5 +1,7 @@
 """Optional-provider-free UI, mandatory user-supplied OpenAI key for AI audits."""
 import json
+import re
+import unicodedata
 from openai import OpenAI
 
 MODEL = "gpt-4.1-mini"
@@ -43,24 +45,45 @@ def evidence_games(game, competitors):
         "genres": g.get("genres") or [],
     } for g in [game, *(competitors or [])]]
 
+_TYPO = str.maketrans({
+    "\u2018": "'", "\u2019": "'", "\u201a": "'", "\u201b": "'", "\u2032": "'",
+    "\u201c": '"', "\u201d": '"', "\u201e": '"', "\u2033": '"',
+    "\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2014": "-", "\u2212": "-",
+    "\u00a0": " ", "\u2122": "", "\u00ae": "", "\u00a9": "",
+})
+
+def normalize(text):
+    text = unicodedata.normalize("NFKC", (text or "").translate(_TYPO)).replace("\u2026", "...")
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+def quote_supported(quote, fields):
+    fragments = [f.strip(" \"'") for f in normalize(quote).strip(" \"'").split("...")]
+    fragments = [f for f in fragments if f]
+    if not fragments or any(len(f) < 8 for f in fragments):
+        return False
+    return any(all(f in field for f in fragments) for field in fields)
+
 def validate_report(report, games):
     if not isinstance(report, dict) or not isinstance(report.get("insights"), list):
         raise ValueError("AI response did not contain an insights list.")
     insights = report["insights"]
     if not 2 <= len(insights) <= 3:
-        raise ValueError("AI must return 2–3 insights.")
-    source = {str(g["app_id"]): (g["short_description"] + " " + g["about_the_game"]).lower() for g in games}
+        raise ValueError("AI must return 2\u20133 insights.")
+    source = {str(g["app_id"]): [normalize(g["short_description"]), normalize(g["about_the_game"])]
+              for g in games}
+    supported = []
     for insight in insights:
         if not isinstance(insight, dict):
             raise ValueError("AI insight has an invalid format.")
         for field in ("title", "interpretation", "action", "evidence_quote", "evidence_app_id"):
             if not isinstance(insight.get(field), str) or not insight[field].strip():
                 raise ValueError("AI insight is missing a required field.")
-        app = insight["evidence_app_id"]
-        quote = insight["evidence_quote"].strip()
-        if len(quote) < 8 or app not in source or quote.lower() not in source[app]:
-            raise ValueError("AI returned an unsupported evidence quotation; no report shown.")
-    return insights
+        app = insight["evidence_app_id"].strip()
+        if app in source and quote_supported(insight["evidence_quote"], source[app]):
+            supported.append({**insight, "evidence_app_id": app})
+    if not supported:
+        raise ValueError("AI returned an unsupported evidence quotation; no report shown.")
+    return supported, len(insights) - len(supported)
 
 def ai_audit(game, competitors, api_key, client=None):
     if not api_key or not api_key.strip():
@@ -96,5 +119,6 @@ def ai_audit(game, competitors, api_key, client=None):
         report = json.loads(raw)
     except (ValueError, TypeError) as exc:
         raise ValueError("AI returned invalid JSON.") from exc
-    return {"model": MODEL, "insights": validate_report(report, games),
+    insights, dropped = validate_report(report, games)
+    return {"model": MODEL, "insights": insights, "dropped_insights": dropped,
             "disclaimer": "AI interpretation of public store text only; verify recommendations with actual players."}
