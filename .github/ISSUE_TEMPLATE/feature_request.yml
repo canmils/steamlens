@@ -1,7 +1,6 @@
 name: Improvement suggestion
 description: Propose a change to an existing workflow
 title: "[Idea] "
-labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
