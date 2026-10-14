@@ -3,10 +3,11 @@ import pytest
 from app.ai_audit import ai_audit, validate_report, evidence_games
 
 def fake_client(report):
-    response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=report))])
+    response = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=report, refusal=None), finish_reason="stop")])
     class Completion:
         def create(self, **kwargs):
-            assert kwargs["response_format"] == {"type": "json_object"}
+            assert kwargs["response_format"]["type"] == "json_schema"
+            assert kwargs["response_format"]["json_schema"]["strict"] is True
             return response
     return SimpleNamespace(chat=SimpleNamespace(completions=Completion()))
 
