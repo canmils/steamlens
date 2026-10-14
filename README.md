@@ -21,10 +21,11 @@ cd steamlens
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+$env:OPENAI_API_KEY = Read-Host -Prompt "Enter API key" -MaskInput
 python -m streamlit run app/main.py
 ```
 
-Open http://localhost:8501 . Paste your API key into the **password-masked field** in the application, enter a Steam URL or App ID (example: `1145360`), optionally enter up to three competitor App IDs (example: `1145350, 588650, 2071280`), then select **Analyze game**.
+Open http://localhost:8501 . Set the API key in the PowerShell session **before starting Streamlit**:\n\n```powershell\n$env:OPENAI_API_KEY = Read-Host -Prompt "Enter API key" -MaskInput\npython -m streamlit run app/main.py\n```\n\nEnter a Steam URL or App ID (example: `1145360`), optionally enter up to three competitor App IDs (example: `1145350, 588650, 2071280`), then select **Analyze game**.
 
 To run tests: `python -m pytest -q`.
 
@@ -34,11 +35,11 @@ To run tests: `python -m pytest -q`.
 docker compose up --build
 ```
 
-Open http://localhost:8501 and enter your API key in the app. No API key is required during image build.
+Set `OPENAI_API_KEY` in the container runtime environment before launching (for example, via an untracked local environment configuration). Never embed it in the image or commit it to the repository.
 
 ## Privacy, cost, and limitations
 
-- SteamLens uses the key only to call OpenAI for the submitted audit. It does **not intentionally persist the key** in files, exported JSON, or logs. The key remains in the Streamlit session while the page is active. Use this local app only on a machine/network you trust; do not expose the development server publicly.
+- SteamLens uses the key only to call OpenAI for the submitted audit. It does **not intentionally persist the key** in files, exported JSON, or logs. The key remains in the server process environment while SteamLens is running. Use this local app only on a machine/network you trust; do not expose the development server publicly.
 - SteamLens sends the target and competitor **game names, App IDs, public short descriptions, excerpts of the About text, and genres** to OpenAI. It does not send screenshot image bytes in v0.4.
 - API usage may incur charges on each analysis. Check provider billing and data handling policies before use.
 - AI output is fallible. Each displayed AI finding must contain a verbatim quote from the supplied public text, but **a correct quote does not prove the interpretation**.
