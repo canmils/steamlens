@@ -33,3 +33,22 @@ def test_competitor_comparison():
     result = audit(game, [other])
     assert result["competitors"][0]["shared_genres"] == ["Action"]
     assert result["competitors"][0]["description_length"] == len("Action game")
+
+from app.positioning import signals, positioning
+
+def test_positioning_matches_phrases():
+    result = signals("Fight the Titan of Time with dark sorcery in the Underworld.")
+    assert result["Combat"] == ["fight"]
+    assert "sorcery" in result["Magic"]
+    assert "titan" in result["Myth and folklore"]
+
+def test_positioning_word_boundaries():
+    assert "Crafting" not in signals("The spacecraft travels quickly.")
+
+def test_positioning_competitor_differences():
+    target = {"app_id": 1, "name": "Target", "short_description": "Fight in the underworld."}
+    other = {"app_id": 2, "name": "Other", "short_description": "Explore a castle with friends in co-op."}
+    result = positioning(target, [other])
+    assert "Combat" in result["main_only"]
+    assert "Cooperative play" in result["peer_only"]
+    assert len(result["games"]) == 2
