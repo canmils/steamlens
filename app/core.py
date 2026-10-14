@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse
 from html import unescape
 import requests
+from app.checklist import parse_languages
 
 STORE_API = "https://store.steampowered.com/api/appdetails"
 
@@ -20,15 +21,37 @@ def app_id(value: str) -> int:
 def clean(value):
     return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", value or ""))).strip()
 
+REVIEWS_API = "https://store.steampowered.com/appreviews/{}"
+HEADERS = {"User-Agent": "SteamLens/0.5 (open-source research tool)"}
+
+def fetch_reviews(identifier: int):
+    """Public review summary. Returns None if Steam does not answer; never blocks the audit."""
+    try:
+        response = requests.get(REVIEWS_API.format(identifier), timeout=12, headers=HEADERS,
+                                params={"json": 1, "num_per_page": 0, "language": "all", "purchase_type": "all"})
+        response.raise_for_status()
+        summary = response.json().get("query_summary")
+        return summary if isinstance(summary, dict) else None
+    except (requests.exceptions.RequestException, ValueError):
+        return None
+
 def fetch_game(identifier: int) -> dict:
     response = requests.get(STORE_API, params={"appids": identifier, "cc": "us", "l": "english"},
-                            timeout=12, headers={"User-Agent": "SteamLens/0.2 (open-source research tool)"})
+                            timeout=12, headers=HEADERS)
     response.raise_for_status()
     result = response.json().get(str(identifier), {})
     if not result.get("success") or not isinstance(result.get("data"), dict):
         raise ValueError(f"Steam did not return public store data for app {identifier}.")
     data = result["data"]
+    languages, audio_languages = parse_languages(data.get("supported_languages"))
     return {
+        "languages": languages, "audio_languages": audio_languages,
+        "trailer_count": len(data.get("movies") or []),
+        "platforms": data.get("platforms") or {},
+        "controller_support": data.get("controller_support"),
+        "achievements": (data.get("achievements") or {}).get("total"),
+        "is_free": data.get("is_free"),
+        "reviews": fetch_reviews(identifier),
         "app_id": identifier, "name": data.get("name", "Unknown"), "type": data.get("type"),
         "short_description": clean(data.get("short_description")),
         "about_the_game": clean(data.get("about_the_game")),
