@@ -1,7 +1,6 @@
 name: Beta user feedback
 description: Tell us whether SteamLens was useful for a real Steam game
 title: "[Feedback] "
-labels: ["feedback"]
 body:
   - type: markdown
     attributes:
