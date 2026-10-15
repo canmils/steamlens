@@ -4,7 +4,10 @@ on:
   pull_request:
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -12,3 +15,20 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
       - run: python -m pytest -q
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate explicit AI configuration without a real key
+        run: OPENAI_API_KEY=ci-placeholder docker compose -f docker-compose.yml -f docker-compose.ai.yml config --quiet
+      - name: Build and start free container
+        run: docker compose up --build -d --wait --wait-timeout 90
+      - name: Check local health endpoint
+        run: curl --fail http://127.0.0.1:8501/_stcore/health
+      - name: Check app initialization in container without a key
+        run: >-
+          docker compose exec -T steamlens python -c
+          "from streamlit.testing.v1 import AppTest; at = AppTest.from_file('app/main.py', default_timeout=30).run(); assert not at.exception"
+      - name: Clean up
+        if: always()
+        run: docker compose down

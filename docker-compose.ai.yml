@@ -1,0 +1,5 @@
+# Explicit opt-in: docker compose -f docker-compose.yml -f docker-compose.ai.yml up --build
+services:
+  steamlens:
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in the launch terminal before enabling AI}

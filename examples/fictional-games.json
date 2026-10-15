@@ -1,0 +1,33 @@
+[
+  {
+    "app_id": 1,
+    "name": "Fictional Orchard Quest",
+    "short_description": "Explore an orchard, craft tools and grow a magical garden.",
+    "about_the_game": "A fictional fixture for onboarding, not a real Steam listing.",
+    "screenshots": [],
+    "genres": ["Adventure"],
+    "categories": ["Single-player"],
+    "languages": ["English"],
+    "audio_languages": [],
+    "trailer_count": 0,
+    "platforms": {"windows": true},
+    "controller_support": null,
+    "reviews": null,
+    "source_url": ""
+  },
+  {
+    "app_id": 2,
+    "name": "Fictional Orchard Together",
+    "short_description": "Explore an orchard with friends in co-op.",
+    "about_the_game": "A second fictional fixture; no commercial performance is implied.",
+    "screenshots": [],
+    "genres": ["Adventure"],
+    "categories": ["Multi-player"],
+    "languages": ["English", "Spanish"],
+    "audio_languages": [],
+    "trailer_count": 0,
+    "platforms": {"windows": true},
+    "reviews": null,
+    "source_url": ""
+  }
+]

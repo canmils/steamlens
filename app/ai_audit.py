@@ -57,11 +57,11 @@ def normalize(text):
     return re.sub(r"\s+", " ", text).strip().lower()
 
 def quote_supported(quote, fields):
-    fragments = [f.strip(" \"'") for f in normalize(quote).strip(" \"'").split("...")]
-    fragments = [f for f in fragments if f]
-    if not fragments or len(fragments) > 2 or any(len(f) < 8 for f in fragments) or len(quote) > 300:
+    # Permit typography/case/spacing differences, but never stitched quotations.
+    normalized = normalize(quote).strip(" \"'")
+    if not 8 <= len(normalized) <= 300 or "..." in normalized:
         return False
-    return any(all(f in field for f in fragments) for field in fields)
+    return any(normalized in field for field in fields)
 
 def validate_report(report, games):
     if not isinstance(report, dict) or not isinstance(report.get("insights"), list):

@@ -1,0 +1,204 @@
+{
+  "game": {
+    "app_id": 1,
+    "name": "Fictional Orchard Quest",
+    "short_description": "Explore an orchard, craft tools and grow a magical garden.",
+    "about_the_game": "A fictional fixture for onboarding, not a real Steam listing.",
+    "screenshots": [],
+    "genres": [
+      "Adventure"
+    ],
+    "categories": [
+      "Single-player"
+    ],
+    "languages": [
+      "English"
+    ],
+    "audio_languages": [],
+    "trailer_count": 0,
+    "platforms": {
+      "windows": true
+    },
+    "controller_support": null,
+    "reviews": null,
+    "source_url": ""
+  },
+  "competitors": [
+    {
+      "app_id": 2,
+      "name": "Fictional Orchard Together",
+      "shared_genres": [
+        "Adventure"
+      ],
+      "screenshot_count": 0,
+      "description_length": 41,
+      "genres": [
+        "Adventure"
+      ],
+      "short_description": "Explore an orchard with friends in co-op.",
+      "source_url": "",
+      "note": "Descriptive comparison; not a conversion or quality ranking."
+    }
+  ],
+  "findings": [
+    {
+      "id": "short-description",
+      "title": "Short description needs review",
+      "severity": "medium",
+      "observation": "The short description contains 58 characters; this is a review trigger, not a proven optimal length.",
+      "recommendation": "Check whether the text explains what players do and what makes the game different.",
+      "evidence": {
+        "field": "short_description",
+        "length": 58,
+        "text": "Explore an orchard, craft tools and grow a magical garden."
+      },
+      "type": "heuristic",
+      "confidence": "Descriptive check only; marketing impact not established"
+    },
+    {
+      "id": "screenshots",
+      "title": "Few screenshots returned",
+      "severity": "medium",
+      "observation": "The public endpoint returned 0 screenshots.",
+      "recommendation": "Verify the listing and consider showing more representative gameplay moments.",
+      "evidence": {
+        "field": "screenshots",
+        "count": 0
+      },
+      "type": "heuristic",
+      "confidence": "Descriptive check only; marketing impact not established"
+    },
+    {
+      "id": "comparison-review",
+      "title": "Review competitor positioning",
+      "severity": "info",
+      "observation": "Compared against 1 user-selected game(s); genre overlap alone does not establish market similarity.",
+      "recommendation": "Compare the opening descriptions and first screenshots side by side; document differences in audience promise.",
+      "evidence": {
+        "field": "competitors",
+        "names": [
+          "Fictional Orchard Together"
+        ]
+      },
+      "type": "heuristic",
+      "confidence": "Descriptive check only; marketing impact not established"
+    }
+  ],
+  "disclaimer": "Public store metadata and descriptive heuristics only. No sales, wishlist, conversion or player estimates. Data may be incomplete.",
+  "checklist": {
+    "checks": [
+      {
+        "id": "short-description",
+        "check": "Short description",
+        "status": "review",
+        "detail": "58 of 300 characters used.",
+        "action": "There is room to name the core activity, the hook and the genre."
+      },
+      {
+        "id": "screenshots",
+        "check": "Screenshots",
+        "status": "missing",
+        "detail": "0 screenshots; Steam requires at least 5.",
+        "action": "Add gameplay screenshots until there are at least 5."
+      },
+      {
+        "id": "trailer",
+        "check": "Trailer",
+        "status": "missing",
+        "detail": "No trailer on the store page.",
+        "action": "Add a gameplay trailer and place it first in the media."
+      },
+      {
+        "id": "languages",
+        "check": "Languages",
+        "status": "review",
+        "detail": "1 languages, 0 with full audio. Every compared game lists more (lowest: 2).",
+        "action": "Check whether more interface or subtitle translations are realistic for your audience."
+      },
+      {
+        "id": "controller",
+        "check": "Controller support",
+        "status": "review",
+        "detail": "No controller support listed.",
+        "action": "If the game works with a controller, declare it in Steamworks. It also helps on Steam Deck."
+      }
+    ],
+    "table": [
+      {
+        "name": "Fictional Orchard Quest",
+        "short_description_chars": 58,
+        "about_words": 10,
+        "screenshots": 0,
+        "trailers": 0,
+        "languages": 1,
+        "full_audio_languages": 0,
+        "platforms": "Windows",
+        "controller_support": "none listed",
+        "achievements": null,
+        "price": null,
+        "reviews_total": null,
+        "reviews_positive_pct": null,
+        "review_summary": null,
+        "release": null
+      },
+      {
+        "name": "Fictional Orchard Together",
+        "short_description_chars": 41,
+        "about_words": 9,
+        "screenshots": 0,
+        "trailers": 0,
+        "languages": 2,
+        "full_audio_languages": 0,
+        "platforms": "Windows",
+        "controller_support": "none listed",
+        "achievements": null,
+        "price": null,
+        "reviews_total": null,
+        "reviews_positive_pct": null,
+        "review_summary": null,
+        "release": null
+      }
+    ],
+    "note": "Checks use public Steam data only. 'ok' means the item is present, not that it works well."
+  },
+  "positioning": {
+    "games": [
+      {
+        "name": "Fictional Orchard Quest",
+        "app_id": 1,
+        "signals": {
+          "Exploration": [
+            "explore"
+          ],
+          "Crafting": [
+            "craft"
+          ]
+        },
+        "source": "short_description"
+      },
+      {
+        "name": "Fictional Orchard Together",
+        "app_id": 2,
+        "signals": {
+          "Exploration": [
+            "explore"
+          ],
+          "Cooperative play": [
+            "co-op"
+          ]
+        },
+        "source": "short_description"
+      }
+    ],
+    "shared": [
+      "Exploration"
+    ],
+    "main_only": [
+      "Crafting"
+    ],
+    "peer_only": [
+      "Cooperative play"
+    ],
+    "method": "Literal keyword matching of public English short descriptions. Missing signal does not mean missing gameplay feature. No performance inference."
+  }
+}

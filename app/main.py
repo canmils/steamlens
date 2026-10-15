@@ -86,6 +86,7 @@ if submitted:
             st.subheader("Positioning signals (experimental)")
             st.caption("Exact phrases found in public short descriptions. These are not AI judgments or quality scores.")
             report = positioning(game, others)
+            result["positioning"] = report
             for entry in report["games"]:
                 with st.expander(entry["name"] + " — positioning evidence", expanded=True):
                     if entry["signals"]:
@@ -115,15 +116,16 @@ if submitted:
                     else:
                         st.caption("OpenAI request failed. Check API billing, model access, and connectivity.")
         if ai_result:
+            result["ai_review"] = ai_result
             st.caption("Model: " + ai_result["model"] + " \u00b7 AI-generated hypotheses, not proven results")
             for insight in ai_result["insights"]:
                 with st.container(border=True):
                     st.markdown("**" + insight["title"] + "**")
                     st.write(insight["interpretation"])
                     st.write("**Suggested experiment:** " + insight["action"])
-                    st.caption("Verbatim store evidence (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
+                    st.caption("Matched store text (App " + insight["evidence_app_id"] + "): \u201c" + insight["evidence_quote"] + "\u201d")
             if ai_result.get("dropped_insights"):
-                st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote not found verbatim in store text.")
+                st.caption(f"{ai_result['dropped_insights']} AI insight(s) hidden: evidence quote not supported by supplied store text.")
             st.caption(ai_result["disclaimer"])
         st.caption(result["disclaimer"])
         st.download_button("Download JSON audit", json.dumps(result, indent=2, ensure_ascii=False),
