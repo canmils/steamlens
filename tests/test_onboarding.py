@@ -3,7 +3,12 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
+import subprocess
+import sys
+
+import pytest
 import requests
+import streamlit as st
 from streamlit.testing.v1 import AppTest
 from app.core import audit
 from app.checklist import store_checklist
@@ -12,6 +17,24 @@ from app.ai_audit import quote_supported
 
 ROOT = Path(__file__).resolve().parents[1]
 GAMES = json.loads((ROOT / 'examples/fictional-games.json').read_text())
+
+
+@pytest.fixture(autouse=True)
+def clear_game_cache():
+    # main.py caches Steam lookups for an hour; each test needs fresh mocked results.
+    st.cache_data.clear()
+    yield
+    st.cache_data.clear()
+
+
+def test_main_imports_when_run_like_streamlit_cloud(tmp_path):
+    # `streamlit run app/main.py` puts app/ first on sys.path, not the repo root.
+    # Running the script directly from another folder reproduces that.
+    result = subprocess.run([sys.executable, str(ROOT / 'app/main.py')], cwd=tmp_path,
+                            capture_output=True, text=True, timeout=60,
+                            env={**os.environ, 'OPENAI_API_KEY': ''})
+    assert 'ModuleNotFoundError' not in result.stderr, result.stderr
+    assert result.returncode == 0, result.stderr
 
 
 def launch():

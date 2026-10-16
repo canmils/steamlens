@@ -78,6 +78,21 @@ The model is currently `gpt-4.1-mini`, defined in `app/ai_audit.py`; `OPENAI_MOD
 
 AI receives names, App IDs, public short descriptions, excerpts of About text and genres. It does not receive screenshot image bytes. Quote checking tolerates case, spacing and typography differences, but rejects fabricated or stitched quotations. Matching text supports provenance, **not the correctness of the interpretation**. Some or all insights may be rejected. AI failure leaves free results available.
 
+## Free public demo: Streamlit Community Cloud
+
+You can host the free checklist and comparison so people try it without installing anything.
+
+1. Sign in at https://share.streamlit.io with the GitHub account that owns this repository.
+2. Click **Create app**, choose this repository, branch `main`, main file `app/main.py`.
+3. Under **Advanced settings**, choose Python 3.12. **Leave Secrets empty.**
+4. Click **Deploy**. The first start takes a few minutes.
+
+**Do not add `OPENAI_API_KEY` to a public app.** With a key set, every visitor's analysis calls OpenAI automatically on your account, with no budget cap.
+Without it, the public demo is free and the AI section says it is skipped.
+
+Steam lookups are cached for one hour. A shared demo can still hit Steam rate limits on busy days; the app then shows an error for that game and nothing else breaks.
+A free Streamlit app sleeps after a period without visitors and wakes on the next visit.
+
 ## Docker: free by default, AI by explicit opt-in
 
 Requires Docker Engine/Desktop with the Compose plugin. From the repository root:
