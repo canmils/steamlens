@@ -1,5 +1,18 @@
 # Verification record
 
+## 16 October 2026
+
+- **Bug fixed:** `streamlit run app/main.py`, used by Streamlit Community Cloud and by the Docker `CMD`,
+  failed with `ModuleNotFoundError: No module named 'app'`. Only `python -m streamlit` worked.
+  Earlier Docker checks did not catch it: they tested the health endpoint and AppTest, not the script import.
+  `app/main.py` now adds the repository root to the import path.
+- New test runs `app/main.py` from another folder, the way `streamlit run` imports it. It fails on the old
+  code and passes on the fix.
+- Confirmed in a real browser: started with `streamlit run app/main.py`, the page loads and shows the
+  free-mode notice.
+- Steam lookups are cached for one hour (`st.cache_data`). Tests clear the cache between runs.
+- 35 offline tests passed.
+
 ## 15 October 2026
 
 - Fresh Python 3.12 virtual environment installed from requirements on Linux.

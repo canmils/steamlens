@@ -1,5 +1,13 @@
 import json
 import os
+import sys
+from pathlib import Path
+
+# `streamlit run app/main.py` (Streamlit Cloud, Docker) puts app/ on sys.path, not the repo root.
+ROOT = str(Path(__file__).resolve().parents[1])
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
 import requests
 import streamlit as st
 from app.core import app_id, fetch_game, audit
@@ -13,6 +21,13 @@ st.title("🎮 SteamLens")
 st.caption("Open-source Steam store page audit · v0.5")
 st.info("Compare your Steam store page with up to 3 games you choose. The checklist is free and needs no API key. "
         "The optional AI review needs your own OpenAI API key, may incur charges and sends public game text to OpenAI.")
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_game(identifier):
+    # One hour cache: fewer Steam requests when a shared demo gets repeated lookups.
+    return fetch_game(identifier)
+
+
 api_key = os.getenv("OPENAI_API_KEY", "").strip()
 if not api_key:
     st.caption("No OPENAI_API_KEY set: the checklist and comparison work; the AI review is skipped.")
@@ -25,7 +40,7 @@ with st.form("audit"):
 if submitted:
     try:
         with st.spinner("Fetching public game information..."):
-            game = fetch_game(app_id(game_url))
+            game = cached_game(app_id(game_url))
             values = [x.strip() for x in comps.split(",") if x.strip()]
             if len(values) > 3:
                 st.warning("Only the first 3 comparison games will be used.")
@@ -35,7 +50,7 @@ if submitted:
                 if identifier == game["app_id"]:
                     continue
                 try:
-                    others.append(fetch_game(identifier))
+                    others.append(cached_game(identifier))
                 except (ValueError, requests.exceptions.RequestException) as exc:
                     st.warning(f"Comparison game {identifier}: {exc}")
             result = audit(game, others)
