@@ -14,6 +14,21 @@ For indie developers and marketers reviewing how their game is presented. Enter 
 
 **Status: local research prototype.** An `ok` check means the element was returned, not that it is effective. No sales, wishlists, conversion forecasts or player research are produced.
 
+## See the result first
+
+**[Open the worked example](examples/README.md)** · [View the fictional JSON report](examples/fictional-audit.json) · [Give feedback](https://github.com/canmils/steamlens/issues/new)
+
+No installation or API key is needed to inspect the example. It uses invented games and deterministic output, not a live Steam capture or AI evaluation.
+
+| Input | What you inspect | Next decision |
+| --- | --- | --- |
+| A target listing and up to three games you choose | Descriptions, returned media, languages and positioning phrases | Which differences deserve a human review? |
+| The included fictional fixture | Missing-media prompts, description checks and comparison signals | Are the findings accurate and useful enough to investigate? |
+
+**Try it locally:** use the installation steps below, then follow [First use: free comparison](#first-use-free-comparison). Hosting instructions are under [Streamlit Community Cloud](#free-public-demo-streamlit-community-cloud); no verified hosted-demo URL is published here.
+
+**Help improve the checklist:** identify one incorrect observation, one missing check, or a finding you would act on. Include the App ID and expected versus actual result. Suggestions about wording, examples and documentation are welcome alongside code contributions.
+
 ## Install on Windows (PowerShell)
 
 Requires Git, Python **3.11 or 3.12** and internet access. Run from the repository root. Activation is unnecessary:
