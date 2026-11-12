@@ -64,6 +64,8 @@ Open http://localhost:8501. Keep the terminal open; Ctrl+C stops the app. Other 
 
 Steam data changes. Prices are requested for the US in English and may differ from your local store. Review summaries can be unavailable without preventing the other checks. A failed competitor request shows a warning and leaves available target results usable; a failed target request prevents an audit.
 
+After the target loads, up to three distinct comparison games load concurrently in your input order, using the existing one-hour cache. Invalid comparison inputs produce warnings without discarding the target. The target and duplicate IDs are skipped; only the first three comparison entries are considered. This adds no model calls or dependencies. See [implementation and checks](docs/agent-improvements/comparison-fetching.md).
+
 See the [worked example](examples/README.md) and [fictional JSON output](examples/fictional-audit.json). They are deterministic fixtures, not a captured live Steam response or an AI evaluation.
 
 ## Optional paid AI review
