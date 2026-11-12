@@ -10,7 +10,7 @@ if ROOT not in sys.path:
 
 import requests
 import streamlit as st
-from app.core import app_id, fetch_game, audit
+from app.core import app_id, fetch_game, fetch_comparisons, audit
 from app.positioning import positioning
 from app.ai_audit import ai_audit
 from app.checklist import store_checklist
@@ -44,15 +44,9 @@ if submitted:
             values = [x.strip() for x in comps.split(",") if x.strip()]
             if len(values) > 3:
                 st.warning("Only the first 3 comparison games will be used.")
-            ids = list(dict.fromkeys(app_id(x) for x in values[:3]))
-            others = []
-            for identifier in ids:
-                if identifier == game["app_id"]:
-                    continue
-                try:
-                    others.append(cached_game(identifier))
-                except (ValueError, requests.exceptions.RequestException) as exc:
-                    st.warning(f"Comparison game {identifier}: {exc}")
+            others, errors = fetch_comparisons(game["app_id"], values, fetcher=cached_game)
+            for error in errors:
+                st.warning(error)
             result = audit(game, others)
         st.subheader(game["name"])
         st.markdown(f"[View original Steam listing]({game['source_url']})")

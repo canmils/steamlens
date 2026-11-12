@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 from html import unescape
 import requests
@@ -65,6 +66,35 @@ def fetch_game(identifier: int) -> dict:
         "price_overview": data.get("price_overview"),
         "source_url": f"https://store.steampowered.com/app/{identifier}/",
     }
+
+def fetch_comparisons(target_id, values, fetcher=fetch_game):
+    """Fetch at most three independent comparisons, retaining order and partial results.
+
+    Workers only fetch data. Render warnings on the calling/UI thread.
+    Keep the existing per-request timeouts; do not multiply Steam traffic with retries.
+    """
+    identifiers, errors = [], []
+    for value in values[:3]:
+        try:
+            identifier = app_id(value)
+        except ValueError as exc:
+            errors.append(f"Comparison game {value}: {exc}")
+            continue
+        if identifier != target_id and identifier not in identifiers:
+            identifiers.append(identifier)
+    if not identifiers:
+        return [], errors
+
+    games = []
+    with ThreadPoolExecutor(max_workers=len(identifiers)) as pool:
+        pending = [(identifier, pool.submit(fetcher, identifier)) for identifier in identifiers]
+        for identifier, future in pending:
+            try:
+                games.append(future.result())
+            except (ValueError, requests.exceptions.RequestException) as exc:
+                errors.append(f"Comparison game {identifier}: {exc}")
+    return games, errors
+
 
 def finding(code, title, severity, observation, recommendation, evidence):
     return {"id": code, "title": title, "severity": severity, "observation": observation,

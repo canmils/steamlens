@@ -73,6 +73,31 @@ def test_target_failure_reports_error_without_export():
         assert len(app.get('download_button')) == 0
 
 
+def test_invalid_peer_keeps_target_and_valid_peer_export():
+    with patch.dict(os.environ, {'OPENAI_API_KEY': ''}), patch('app.core.fetch_game', side_effect=GAMES), patch('streamlit.download_button', return_value=False) as download:
+        app = submit(launch(), peers='bad, 2')
+        assert any('Comparison game bad' in w.value for w in app.warning)
+        exported = json.loads(download.call_args.args[1])
+        assert exported['game']['app_id'] == GAMES[0]['app_id']
+        assert len(exported['competitors']) == 1
+
+
+def test_three_cached_comparisons_overlap_in_ui_and_keep_order():
+    from threading import Barrier
+
+    peers_started = Barrier(3, timeout=3)
+
+    def fetch(identifier):
+        if identifier != 1:
+            peers_started.wait()
+        return {**GAMES[0], 'app_id': identifier, 'name': f'Fixture {identifier}'}
+
+    with patch.dict(os.environ, {'OPENAI_API_KEY': ''}), patch('app.core.fetch_game', side_effect=fetch), patch('streamlit.download_button', return_value=False) as download:
+        submit(launch(), peers='2, 3, 4')
+        exported = json.loads(download.call_args.args[1])
+        assert [g['app_id'] for g in exported['competitors']] == [2, 3, 4]
+
+
 def test_paid_ui_export_contains_successful_review():
     review = {'model': 'fixture', 'insights': [], 'dropped_insights': 0, 'disclaimer': 'Mock result'}
     with patch.dict(os.environ, {'OPENAI_API_KEY': 'fictional-test-key'}), patch('app.core.fetch_game', side_effect=GAMES), patch('app.ai_audit.ai_audit', return_value=review), patch('streamlit.download_button', return_value=False) as download:
